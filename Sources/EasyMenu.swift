@@ -109,17 +109,6 @@ public struct EasyMenu<Label, Content> : View where Label : View, Content : View
         } label: {
             label
         }
-        .onAppear(perform: {
-    #if os(macOS)
-            if let screen = NSScreen.main {
-                screenWidth = screen.frame.size.width
-                screenHeight = screen.frame.size.height
-            }
-    #else
-            screenWidth = UIScreen.main.bounds.size.width
-            screenHeight = UIScreen.main.bounds.size.height * 2
-    #endif
-        })
         .overlay(backgroundOverlay())
         .overlay(menuOverlay())
         .onChange(of: isActive) { newValue in
@@ -141,6 +130,9 @@ public struct EasyMenu<Label, Content> : View where Label : View, Content : View
 extension EasyMenu {
     func backgroundOverlay() -> some View {
         GeometryReader { geo in
+            let screenWidth = geo.size.width
+            let screenHeight = geo.size.height * 2 // Adjust as necessary
+
             VStack {
                 if showMenu {
                     Button {
@@ -155,8 +147,8 @@ extension EasyMenu {
                     .offset(x: -geo.frame(in: .global).origin.x)
                 }
             }
+            .frame(width: screenWidth, height: screenHeight)
         }
-        .frame(width: screenWidth, height: screenHeight)
     }
 }
 
@@ -196,13 +188,13 @@ extension EasyMenu {
                         }
                     }
                 )
-                .offset(x: menuOffsetX(geo.frame(in: .global).origin.x), y: menuOffsetY(geo.frame(in: .global).origin.y))
+                .offset(x: menuOffsetX(geo.frame(in: .global).origin.x, screenWidth: geo.size.width), y: menuOffsetY(geo.frame(in: .global).origin.y, screenHeight: geo.size.height))
                 .transition(transition.value)
             }
         }
         .frame(width: width, height: height)
     }
-    func menuOffsetX(_ x: Double) -> Double {
+    func menuOffsetX(_ x: Double, screenWidth: Double) -> Double {
         if isCenter {
             return -x + (screenWidth - width) / 2.0
         }
@@ -213,8 +205,8 @@ extension EasyMenu {
             return screenWidth - x - width - 8
         }
         return 0
-    }    
-    func menuOffsetY(_ y: Double) -> Double {
+    }
+    func menuOffsetY(_ y: Double, screenHeight: Double) -> Double {
         return y > screenHeight / 3.5 ? -height / 1.5 + 16 : height / 2.0 + 16
     }
 }
