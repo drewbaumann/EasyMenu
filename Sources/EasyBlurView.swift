@@ -11,7 +11,6 @@ import AppKit
 import UIKit
 #endif
 
-#if os(iOS)
 @available(iOS 13.0, *)
 struct EasyBlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
@@ -31,4 +30,3 @@ struct EasyBlurView: UIViewRepresentable {
         
     }
 }
-#endif
